@@ -397,7 +397,7 @@ function panel(co, label, art){
   const hide = role==='host' ? 'badge-hidden' : '';
   return `<div class="art-panel">
     <div class="panel-co ${co}">${label}</div>
-    <div class="art-img"><span>${art.imgKey}</span></div>
+    <div class="art-img"><img src="https://bazaar02.github.io/Bazaar/images/${art.imgKey}.png" alt="${art.imgKey}"></div>
     <span class="art-badge ${cls} ${hide}">${txt}</span>
     <div class="art-headline">${art.headline}</div>
     <div class="art-body">${art.body}</div>
