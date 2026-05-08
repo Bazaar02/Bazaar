@@ -1,498 +1,424 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mock Stock Market — News Feed</title>
+<title>The Trading Floor Gazette</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F5F0E8;--ink:#1A1208;--paper:#FDFAF4;--rule:#D4C9B0;
+  --bravo:#1B3A6B;--alpha:#8B1A1A;
+  --pos:#2D5A1B;--pos-bg:#EBF5E4;--pos-border:#97C459;
+  --neg:#8B1A1A;--neg-bg:#F7E8E8;--neg-border:#E09090;
+  --neu:#5A4A1B;--neu-bg:#F5F0DC;--neu-border:#C8B870;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
 
-body {
-font-family: ‘DM Sans’, sans-serif;
-background: #F5F0E8;
-color: #1A1208;
-min-height: 100vh;
-}
+/* HOME */
+#home{align-items:center;justify-content:center;padding:48px 24px;text-align:center;background:var(--paper)}
+.home-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:#aaa;margin-bottom:12px}
+.home-title{font-family:'Playfair Display',serif;font-size:clamp(28px,7vw,52px);font-weight:700;line-height:1;margin-bottom:4px}
+.home-dbl{border:none;border-top:3px double var(--ink);width:100px;margin:16px auto}
+.home-sub{display:none}
+.section-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#aaa;margin-bottom:10px;text-align:left}
+.role-section{width:100%;max-width:420px;margin-bottom:28px}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.role-card{border:1.5px solid var(--rule);background:var(--cream);padding:16px 14px;cursor:pointer;text-align:left;border-radius:3px;transition:all 0.15s;position:relative}
+.role-card:hover{border-color:var(--ink)}
+.role-card.selected{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.role-card.selected .role-card-sub{color:#ccc}
+.role-card-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700}
+.role-card-sub{font-size:11px;color:#888;margin-top:3px;line-height:1.4}
+.role-check{position:absolute;top:10px;right:12px;font-size:14px;opacity:0;transition:opacity 0.15s}
+.role-card.selected .role-check{opacity:1}
+.mode-section{width:100%;max-width:420px}
+.mode-cards{display:flex;flex-direction:column;gap:10px}
+.mode-card{border:1.5px solid var(--ink);background:var(--cream);padding:16px 20px;cursor:pointer;text-align:left;border-radius:3px;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center;opacity:.35;pointer-events:none}
+.mode-card.unlocked{opacity:1;pointer-events:all}
+.mode-card.unlocked:hover{background:var(--ink);color:var(--paper)}
+.mode-card.unlocked:hover .mode-sub{color:#ccc}
+.mode-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:700}
+.mode-sub{font-size:11px;color:#777;margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:1px}
+.mode-arrow{font-size:18px;opacity:.4}
 
-.masthead {
-border-bottom: 3px double #1A1208;
-padding: 18px 24px 14px;
-text-align: center;
-background: #FDFAF4;
-position: relative;
-}
-.masthead-kicker {
-font-family: ‘DM Mono’, monospace;
-font-size: 10px;
-letter-spacing: 3px;
-text-transform: uppercase;
-color: #888;
-margin-bottom: 6px;
-}
-.masthead-title {
-font-family: ‘Playfair Display’, serif;
-font-size: clamp(22px, 5vw, 36px);
-font-weight: 700;
-letter-spacing: -0.5px;
-line-height: 1;
-}
-.masthead-sub {
-font-size: 11px;
-color: #888;
-margin-top: 6px;
-font-style: italic;
-font-family: ‘Playfair Display’, serif;
-}
-.masthead-rule {
-border: none;
-border-top: 1px solid #D4C9B0;
-margin: 10px 0 0;
-}
+/* GAME */
+#game{background:var(--cream)}
+.masthead{border-bottom:3px double var(--ink);padding:12px 20px 10px;text-align:center;background:var(--paper)}
+.mast-eye{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#bbb}
+.mast-title{font-family:'Playfair Display',serif;font-size:clamp(16px,3.5vw,26px);font-weight:700}
+.prog-wrap{background:var(--rule);height:3px}
+.prog-bar{height:3px;background:var(--ink);transition:width .4s ease}
+.round-strip{display:flex;justify-content:space-between;align-items:center;padding:7px 20px;background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px}
+.pills{display:flex;gap:8px;align-items:center}
+.mode-pill{font-size:9px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.12);letter-spacing:1px}
+.host-pill{font-size:9px;padding:2px 8px;border-radius:20px;letter-spacing:1px}
+.host-pill.host{background:rgba(139,26,26,.5);color:#ffd0d0}
+.host-pill.viewer{background:rgba(27,58,107,.5);color:#d0deff}
+.articles-area{flex:1;display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
+@media(max-width:540px){.articles-area{grid-template-columns:1fr}}
+.art-panel{padding:20px 18px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+.art-panel:last-child{border-right:none}
+.panel-co{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:500;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+.panel-co.bravo{color:var(--bravo)}
+.panel-co.alpha{color:var(--alpha)}
+.art-img{width:100%;aspect-ratio:16/7;background:var(--cream);border:1px dashed var(--rule);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;color:#ccc;letter-spacing:2px;text-transform:uppercase;overflow:hidden}
+.art-img img{width:100%;height:100%;object-fit:cover}
+.art-badge{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:3px 9px;border-radius:2px;display:inline-block;letter-spacing:1px;border:1px solid transparent}
+.badge-pos{background:var(--pos-bg);color:var(--pos);border-color:var(--pos-border)}
+.badge-neg{background:var(--neg-bg);color:var(--neg);border-color:var(--neg-border)}
+.badge-neu{background:var(--neu-bg);color:var(--neu);border-color:var(--neu-border)}
+.badge-hidden{visibility:hidden}
+.art-headline{font-family:'Playfair Display',serif;font-size:clamp(14px,2.2vw,17px);font-weight:700;line-height:1.3}
+.art-body{font-size:13px;line-height:1.72;color:#444;flex:1}
+.art-date{font-family:'DM Mono',monospace;font-size:9px;color:#bbb;margin-top:auto;padding-top:8px;border-top:1px dashed var(--rule)}
+.nav-row{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--paper);border-top:1px solid var(--rule)}
+.nav-btn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;border:1.5px solid var(--ink);background:transparent;cursor:pointer;transition:all .15s;border-radius:2px;color:var(--ink)}
+.nav-btn:hover{background:var(--ink);color:var(--paper)}
+.nav-btn:disabled{opacity:.25;cursor:default;pointer-events:none}
+.nav-btn.primary{background:var(--ink);color:var(--paper)}
+.nav-btn.primary:hover{background:#333}
+.nav-ctr{font-family:'DM Mono',monospace;font-size:10px;color:#999}
+/* font size toggle — host only */
+.font-toggle-wrap{display:none;align-items:center;gap:6px;padding:6px 20px;background:var(--cream);border-top:1px solid var(--rule);justify-content:flex-end}
+.font-toggle-wrap.visible{display:flex}
+.font-toggle-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#aaa}
+.font-toggle-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;border:1px solid var(--rule);background:transparent;cursor:pointer;border-radius:2px;color:#888;transition:all .15s}
+.font-toggle-btn.active-size{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.font-toggle-btn:hover:not(.active-size){border-color:#888;color:var(--ink)}
+/* scaleable text targets */
+body.font-large .art-headline{font-size:clamp(17px,2.8vw,22px)}
+body.font-large .art-body{font-size:15px;line-height:1.75}
+body.font-large .art-date{font-size:11px}
+body.font-large .panel-co{font-size:12px}
+body.font-xl .art-headline{font-size:clamp(20px,3.2vw,27px)}
+body.font-xl .art-body{font-size:17px;line-height:1.78}
+body.font-xl .art-date{font-size:12px}
+body.font-xl .panel-co{font-size:13px}
 
-.shell {
-max-width: 760px;
-margin: 0 auto;
-padding: 0 16px 40px;
-}
-
-.company-tabs {
-display: grid;
-grid-template-columns: 1fr 1fr;
-border-bottom: 2px solid #1A1208;
-margin-top: 20px;
-}
-.company-tab {
-padding: 12px 16px;
-text-align: center;
-cursor: pointer;
-font-family: ‘DM Mono’, monospace;
-font-size: 11px;
-letter-spacing: 2px;
-text-transform: uppercase;
-color: #888;
-border-bottom: 3px solid transparent;
-margin-bottom: -2px;
-transition: all 0.2s;
-background: transparent;
-}
-.company-tab:hover { color: #1A1208; }
-.company-tab.active-bravo { color: #1B3A6B; border-bottom-color: #1B3A6B; font-weight: 500; }
-.company-tab.active-alpha { color: #8B1A1A; border-bottom-color: #8B1A1A; font-weight: 500; }
-.company-tab .ticker {
-display: block;
-font-size: 18px;
-font-family: ‘Playfair Display’, serif;
-font-weight: 700;
-letter-spacing: 0;
-margin-bottom: 2px;
-}
-
-.arc-strip {
-font-size: 11px;
-font-style: italic;
-font-family: ‘Playfair Display’, serif;
-padding: 8px 14px;
-margin: 14px 0;
-border-left: 3px solid;
-}
-.arc-fall { border-color: #8B1A1A; color: #8B1A1A; background: #F7E8E8; }
-.arc-rise { border-color: #2D5A1B; color: #2D5A1B; background: #EBF5E4; }
-
-.section-head {
-display: flex;
-align-items: center;
-gap: 12px;
-margin: 20px 0 10px;
-}
-.section-label {
-font-family: ‘DM Mono’, monospace;
-font-size: 10px;
-letter-spacing: 3px;
-text-transform: uppercase;
-padding: 3px 10px;
-border-radius: 2px;
-white-space: nowrap;
-font-weight: 500;
-}
-.label-pos { background: #EBF5E4; color: #2D5A1B; }
-.label-neg { background: #F7E8E8; color: #8B1A1A; }
-.label-neu { background: #F5F0DC; color: #5A4A1B; }
-.section-rule { flex: 1; height: 1px; background: #D4C9B0; }
-
-.articles { display: flex; flex-direction: column; gap: 0; }
-.article {
-border-bottom: 1px solid #D4C9B0;
-padding: 14px 0;
-cursor: pointer;
-}
-.article:last-child { border-bottom: none; }
-.article-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.article-headline {
-font-family: ‘Playfair Display’, serif;
-font-size: 15px;
-font-weight: 700;
-line-height: 1.35;
-flex: 1;
-transition: color 0.15s;
-}
-.article:hover .article-headline { color: #555; }
-.article-date {
-font-family: ‘DM Mono’, monospace;
-font-size: 10px;
-color: #999;
-white-space: nowrap;
-margin-top: 3px;
-}
-.article-body {
-display: none;
-margin-top: 10px;
-padding-top: 10px;
-border-top: 1px dashed #D4C9B0;
-}
-.article-body.open { display: block; }
-.article-body p {
-font-size: 13px;
-line-height: 1.7;
-color: #333;
-}
-.impact-line {
-margin-top: 10px;
-font-family: ‘DM Mono’, monospace;
-font-size: 11px;
-padding: 5px 10px;
-border-radius: 2px;
-display: inline-block;
-font-weight: 500;
-}
-.impact-pos { background: #EBF5E4; color: #2D5A1B; }
-.impact-neg { background: #F7E8E8; color: #8B1A1A; }
-.impact-neu { background: #F5F0DC; color: #5A4A1B; }
-
-.chevron {
-font-size: 10px;
-color: #aaa;
-margin-top: 4px;
-transition: transform 0.2s;
-flex-shrink: 0;
-}
-.article.open .chevron { transform: rotate(180deg); }
-
-.footer-rule { border: none; border-top: 3px double #1A1208; margin: 32px 0 12px; }
-.footer-text { text-align: center; font-size: 11px; color: #aaa; font-style: italic; font-family: ‘Playfair Display’, serif; }
+/* END */
+#endscreen{align-items:center;justify-content:center;padding:48px 24px;text-align:center;background:var(--paper)}
+.end-eye{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:#aaa;margin-bottom:8px}
+.end-title{font-family:'Playfair Display',serif;font-size:clamp(26px,6vw,44px);font-weight:700;margin-bottom:6px}
+.end-sub{font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:#777;margin-bottom:28px;max-width:420px;line-height:1.6}
+.verdicts{display:flex;flex-direction:column;gap:12px;width:100%;max-width:440px;margin-bottom:28px}
+.v-card{border:1px solid var(--rule);padding:16px 18px;text-align:left;border-radius:3px}
+.v-ticker{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;margin-bottom:6px;font-weight:500}
+.v-ticker.bravo{color:var(--bravo)}
+.v-ticker.alpha{color:var(--alpha)}
+.v-outcome{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:6px}
+.v-note{font-size:12px;color:#555;line-height:1.65}
+.play-again{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px 22px;border:1.5px solid var(--ink);background:transparent;cursor:pointer;border-radius:2px;transition:all .15s;color:var(--ink)}
+.play-again:hover{background:var(--ink);color:var(--paper)}
 </style>
-
 </head>
 <body>
 
-<div class="masthead">
-  <div class="masthead-kicker">Simulated Market Exercise · Confidential</div>
-  <div class="masthead-title">The Trading Floor Gazette</div>
-  <div class="masthead-sub">All the news that moves markets — click any headline to read</div>
-  <hr class="masthead-rule">
-</div>
-
-<div class="shell">
-
-  <div class="company-tabs">
-    <div class="company-tab active-bravo" onclick="switchCompany('bravo')">
-      <span class="ticker">BRVT</span>Bravo Technologies
-    </div>
-    <div class="company-tab" onclick="switchCompany('alpha')">
-      <span class="ticker">ALPM</span>Alpha Motors
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-eyebrow">Simulation Exercise · Confidential</div>
+  <div class="home-title">The Trading Floor Gazette</div>
+  <hr class="home-dbl">
+  <div class="role-section">
+    <div class="section-label">Step 1 — How are you using this?</div>
+    <div class="role-cards">
+      <div class="role-card" id="role-host" onclick="selectRole('host')">
+        <span class="role-check">✓</span>
+        <div class="role-card-name">Hosting</div>
+        <div class="role-card-sub">Displaying on a projector for the room. Sentiment labels hidden.</div>
+      </div>
+      <div class="role-card" id="role-viewer" onclick="selectRole('viewer')">
+        <span class="role-check">✓</span>
+        <div class="role-card-name">Viewing</div>
+        <div class="role-card-sub">Reviewing the flow privately. Positive / Negative / Neutral shown.</div>
+      </div>
     </div>
   </div>
 
-  <div id="arc-strip" class="arc-strip arc-fall"></div>
-  <div id="news-container"></div>
+  <div class="mode-section">
+    <div class="section-label">Step 2 — Choose your game</div>
+    <div class="mode-cards">
+      <div class="mode-card" id="mode-10" onclick="startGame(10)">
+        <div>
+          <div class="mode-name">10-Round Game</div>
+          <div class="mode-sub">Full storyline · Recommended</div>
+        </div>
+        <div class="mode-arrow">→</div>
+      </div>
+      <div class="mode-card" id="mode-7" onclick="startGame(7)">
+        <div>
+          <div class="mode-name">7-Round Game</div>
+          <div class="mode-sub">Condensed · Faster play</div>
+        </div>
+        <div class="mode-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <hr class="footer-rule">
-  <div class="footer-text">For simulation purposes only. All companies, events and persons are fictional.</div>
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="masthead">
+    <div class="mast-eye">The Trading Floor Gazette · Live Edition</div>
+    <div class="mast-title">Breaking News</div>
+  </div>
+  <div class="prog-wrap"><div class="prog-bar" id="prog"></div></div>
+  <div class="round-strip">
+    <span id="round-lbl">Round 1</span>
+    <div class="pills">
+      <span class="host-pill" id="role-pill"></span>
+      <span class="mode-pill" id="mode-pill"></span>
+    </div>
+  </div>
+  <div class="articles-area" id="articles-area"></div>
+  <div class="nav-row">
+    <button class="nav-btn" id="prev-btn" onclick="changeRound(-1)" disabled>← Prev</button>
+    <span class="nav-ctr" id="nav-ctr">1 / 10</span>
+    <button class="nav-btn primary" id="next-btn" onclick="changeRound(1)">Next →</button>
+  </div>
+  <div class="font-toggle-wrap" id="font-toggle-wrap">
+    <span class="font-toggle-label">Text size</span>
+    <button class="font-toggle-btn active-size" onclick="setFont('normal')">A</button>
+    <button class="font-toggle-btn" onclick="setFont('large')">A+</button>
+    <button class="font-toggle-btn" onclick="setFont('xl')">A++</button>
+  </div>
+</div>
+
+<!-- END -->
+<div id="endscreen" class="screen">
+  <div class="end-eye">Final Edition · Game Over</div>
+  <div class="end-title">The Verdict</div>
+  <div class="end-sub">The news has been read. The market has decided. Here is how it ends.</div>
+  <div class="verdicts">
+    <div class="v-card">
+      <div class="v-ticker bravo">BRVT · Bravo Technologies</div>
+      <div class="v-outcome">📉 Collapse</div>
+      <div class="v-note">CEO Marcus Vell resigns and puts Bravo up for sale. What started as a pandemic success story ends as a cautionary tale — a server outage that was never explained, a missing employee whose questions got too close, a transparency report that covered everything up. Bravo is sold at a fraction of what it was once worth. Nobody is held accountable.</div>
+    </div>
+    <div class="v-card">
+      <div class="v-ticker alpha">ALPM · Alpha Motors</div>
+      <div class="v-outcome">📈 Comeback</div>
+      <div class="v-note">CEO Dilan Marsh is fully cleared by an independent review. Alpha sidesteps the tariffs with a new European factory in Portugal. Ananya Kapoor comes back — no caption needed. The stock closes the year at an all-time high. A company that looked finished six months ago ends as the most talked-about turnaround in the industry.</div>
+    </div>
+  </div>
+  <button class="play-again" onclick="goHome()">↩ Play Again</button>
 </div>
 
 <script>
-const data = {
-  bravo: {
-    arc: "fall",
-    arcText: "BRVT · Story arc: The higher they climb, the harder they fall.",
-    sections: [
-      {
-        type: "positive",
-        articles: [
-          {
-            headline: "Bravo Technologies hits 200M users — pandemic turns a startup into a household name",
-            date: "Q1, Yr 1",
-            body: "When the world locked down, Bravo locked in. The company's remote-work suite saw downloads triple in 90 days, used by schools, hospitals and offices nationwide. Bollywood star Priya Mehta was even spotted on a viral Instagram live using the app — free publicity no ad budget could buy. Venture capital came sprinting.",
-            impact: "↑ +18% — Pandemic tailwind triggers first major institutional rally"
-          },
-          {
-            headline: "Bravo closes ₹3,200 Cr Series D — valued at $9.2 billion",
-            date: "Q2, Yr 1",
-            body: "Three of the world's top VC firms lead a landmark funding round. CEO Marcus Vell tells CNBC-TV18 it is 'a mandate to build the future of work.' The valuation is a 3x jump in 18 months. For one golden quarter, Bravo Technologies feels inevitable.",
-            impact: "↑ +11% — Valuation milestone fuels momentum buying"
-          },
-          {
-            headline: "Fortune India names Bravo 'Most Exciting Tech Company' — Vell on the cover",
-            date: "Q3, Yr 1",
-            body: "A glowing profile describes the company's rise from a 12-person Bengaluru startup to a global contender. The cover photo of Vell — relaxed, visionary — will later feel deeply ironic. Enterprise waitlists stretch to 18 months. Everyone wants a piece of Bravo.",
-            impact: "↑ +6% — PR moment drives retail investor surge"
-          },
-          {
-            headline: "₹1,500 Cr in government contracts secured across four countries",
-            date: "Q1, Yr 2",
-            body: "Public sector deals in national education and health infrastructure lock in predictable long-cycle revenue. Analysts applaud the diversification. Vell calls it 'a vote of confidence from the institutions that matter most.' Nobody reads the data-sharing provisions closely enough.",
-            impact: "↑ +9% — Revenue diversification reassures long-term holders"
-          },
-          {
-            headline: "Bravo files for IPO — S-1 reveals $1.2B revenue, 214% YoY growth",
-            date: "Q2, Yr 2",
-            body: "The S-1 is a dream document. The roadshow oversubscribes within hours. Vell rings the bell on a Tuesday morning with the original twelve employees behind him. By midday the stock is up 40% on open. It is the best day in Bravo's history — and, in retrospect, the last truly good one.",
-            impact: "↑ +24% — IPO frenzy pushes market cap past $22B at open"
-          }
-        ]
-      },
-      {
-        type: "negative",
-        articles: [
-          {
-            headline: "Vell photographed at Las Vegas Grand Prix with investor under SEC probe",
-            date: "Q3, Yr 2",
-            body: "The stock has been quietly bleeding for six weeks. Then photos surface: Vell at the F1 Las Vegas Grand Prix, laughing with an angel investor under active SEC scrutiny. 'While shareholders bleed, the CEO parties' trends within the hour. The optics are beyond salvage.",
-            impact: "↓ −14% — Outrage compounds an already declining price"
-          },
-          {
-            headline: "12-hour global outage locks out 214 million users — cause 'undisclosed'",
-            date: "Q4, Yr 2",
-            body: "At 3:14am, every Bravo server goes dark. Schools can't teach. Hospitals lose records. Government portals go offline. When services restore, Vell issues four sentences — no root cause, no accountability. Competitors have free-trial pages live within the hour.",
-            impact: "↓ −31% — Crash wipes ₹17,000 Cr off market cap in a single session"
-          },
-          {
-            headline: "SEC whistleblower complaint filed by ex-engineer — IPO disclosures under scrutiny",
-            date: "Q1, Yr 3",
-            body: "A former senior engineer alleges Bravo concealed critical security vulnerabilities during the IPO. Internal memos referenced in the filing suggest the issues were known for over a year. Bravo calls it 'baseless and retaliatory.' Two hedge funds quietly reduce positions.",
-            impact: "↓ −19% — Legal overhang triggers institutional sell-down"
-          },
-          {
-            headline: "Bravo board member named in Epstein document release — shareholders demand answers",
-            date: "Q2, Yr 3",
-            body: "A newly released tranche of documents names a Bravo board member at Epstein-linked events. The member declines to comment. Bravo's statement calls it 'a personal matter unrelated to operations.' Two major institutional holders announce position reviews. Nobody is satisfied.",
-            impact: "↓ −22% — Reputational contagion accelerates institutional exit"
-          },
-          {
-            headline: "Bravo cuts 18% of workforce — leaked memo reads 'structural miscalculation'",
-            date: "Q3, Yr 3",
-            body: "Over 3,400 employees are let go in a single announcement. A leaked internal memo from Vell admits the company 'scaled headcount against projections that did not materialise.' The phrase 'structural miscalculation' is seized upon immediately. It is the largest single-day layoff in the company's history.",
-            impact: "↓ −27% — Panic selling triggers circuit breakers"
-          }
-        ]
-      },
-      {
-        type: "neutral",
-        articles: [
-          {
-            headline: "Ex-employee joins popular podcast to criticise Bravo — story dies within 48 hours",
-            date: "Q3, Yr 2",
-            body: "Former engineer Daria Chen joins a tech podcast to describe 'a culture of fear and surveillance' inside Bravo. The episode gets 800,000 plays. Then quietly, the story dies. What most listeners don't know: the podcast is produced by a firm with indirect ties to a Bravo PR consultant. Her piece never gains further traction.",
-            impact: "→ Flat — Narrative neutralised before it could move markets"
-          },
-          {
-            headline: "Former data architect James Okafor reported missing — case closed under undisclosed circumstances",
-            date: "Q4, Yr 2",
-            body: "Okafor left Bravo three months ago under ambiguous terms. His family reports him missing. Officials open an investigation. Sixty days later the case is quietly closed — 'insufficient evidence to proceed.' Former colleagues note he had been asking questions about the server outage's true cause. No further information is offered by anyone.",
-            impact: "→ Flat — No official connection drawn; story buried"
-          },
-          {
-            headline: "Bravo deploys AI-driven backend overhaul — 40% faster, publicly controversial",
-            date: "Q1, Yr 3",
-            body: "Bravo quietly replaces large portions of its infrastructure with AI automation, cutting response times by 40%. Users notice nothing. A vocal coalition of commentators question the ethics of replacing engineers with models — ironic, given that layoffs have already begun. Internally, it is the most sophisticated engineering leap in the company's history.",
-            impact: "→ −4% then flat — Efficiency gains outweighed by public skepticism"
-          },
-          {
-            headline: "Heavy international tariffs classify Bravo as 'strategic technology' — costs surge",
-            date: "Q2, Yr 3",
-            body: "Three governments impose significant tariffs and compliance requirements on Bravo's cross-border data operations. Being classified as 'strategically important' lends the company a strange prestige — but at a steep financial cost analysts are still trying to model.",
-            impact: "→ −6% — Cost uncertainty unsettles medium-term outlook"
-          },
-          {
-            headline: "Annual transparency report released — more questions than answers",
-            date: "Q3, Yr 3",
-            body: "Bravo's transparency report is technically thorough but conspicuously avoids the server outage, the whistleblower complaint, or the missing employee case. Privacy advocates call it 'performative.' Investors call it 'sufficient.' Nobody calls it honest.",
-            impact: "→ Flat — Neither reassuring nor alarming enough to move markets"
-          }
-        ]
-      }
-    ]
+const ART = {
+  bravo:{
+    P1:{type:"pos",imgKey:"bravo_p1",
+      headline:"Bravo app goes from small startup to national sensation overnight",
+      body:"When the country went into lockdown, nobody expected a small Bengaluru tech company to become essential infrastructure. But Bravo's work-from-home platform was suddenly being used by schools, hospitals and offices across the country. Bollywood actress Priya Mehta was spotted using it live on Instagram to 30 million followers — and downloads tripled in a single week. The company has gone from promising to unmissable.",
+      date:"Q1, Year 1"},
+    P2:{type:"pos",imgKey:"bravo_p2",
+      headline:"Bravo raises ₹3,200 crore — biggest tech investment round of the year",
+      body:"Three of the world's largest investment firms have backed Bravo in a massive funding round, valuing the company higher than it has ever been. CEO Marcus Vell says the money will go toward expanding to more countries and building a larger team. For a company that started with twelve people sharing a co-working space in Bengaluru, this is a moment that felt unimaginable just two years ago.",
+      date:"Q2, Year 1"},
+    P3:{type:"pos",imgKey:"bravo_p3",
+      headline:"Bravo signs government contracts worth ₹1,500 crore across four countries",
+      body:"National health departments, education ministries and public administration offices in four countries have signed long-term deals to run their operations on Bravo's platform. This is a significant shift — from a consumer app to critical government infrastructure. The contracts guarantee steady income for years ahead and represent a kind of endorsement that money alone cannot buy.",
+      date:"Q1, Year 2"},
+    N1:{type:"neg",imgKey:"bravo_n1",
+      headline:"Bravo CEO photographed at Formula 1 race with investor facing fraud charges",
+      body:"Photos of Marcus Vell at the Formula 1 race in Las Vegas have gone viral — for all the wrong reasons. He was photographed at a private event alongside a prominent investor who is currently facing fraud charges in the United States. Vell has not commented. Several of the company's major shareholders have issued public statements asking for an explanation. The images have been picked up by every major news outlet.",
+      date:"Q3, Year 2"},
+    N2:{type:"neg",imgKey:"bravo_n2",
+      headline:"Bravo's entire platform shuts down for 12 hours — company offers no explanation",
+      body:"At 3am on a Tuesday, Bravo went completely dark. Schools couldn't teach. Hospital staff were locked out of patient records. Government departments lost access to systems they depend on daily. After twelve hours, service was restored — and Vell released a four-line statement that explained nothing about what happened or why. Competing apps immediately began offering free accounts to affected Bravo users.",
+      date:"Q4, Year 2"},
+    N3:{type:"neg",imgKey:"bravo_n3",
+      headline:"Former Bravo engineer files official complaint — claims company hid serious problems from investors",
+      body:"A former engineer at Bravo has filed a formal complaint with financial regulators, alleging that the company was aware of significant security flaws in its platform well before it went public — and chose not to disclose this to investors. Bravo has denied the claims and described the complaint as 'motivated by personal grievance.' Regulators have confirmed they are reviewing the submission.",
+      date:"Q1, Year 3"},
+    N4:{type:"neg",imgKey:"bravo_n4",
+      headline:"Bravo CEO resigns — company put up for sale",
+      body:"Marcus Vell has stepped down as CEO of Bravo Technologies with immediate effect. In a statement released on Friday evening, the board confirmed it has appointed advisors to explore a full sale of the company. The asking price is reported to be a fraction of what Bravo was worth at the height of the pandemic. The server outage was never fully explained. The missing employee case was never reopened. The company that once seemed unstoppable is now looking for a buyer.",
+      date:"Q4, Year 3"},
+    U1:{type:"neu",imgKey:"bravo_u1",
+      headline:"Former Bravo employee speaks out on podcast — then the story quietly disappears",
+      body:"A former Bravo engineer named Daria Chen joined a popular tech podcast to describe a workplace she called 'controlled by fear, not creativity.' The episode attracted close to a million listeners in its first 24 hours. Then, within two days, it vanished from coverage entirely — no follow-up stories, no comment from Bravo, and the episode itself was quietly removed from the podcast's feed. Nobody has explained why.",
+      date:"Q3, Year 2"},
+    U2:{type:"neu",imgKey:"bravo_u2",
+      headline:"Former Bravo employee reported missing — investigation opened, then closed without explanation",
+      body:"James Okafor, a former data specialist at Bravo who left the company under unclear circumstances, was reported missing by his family after two weeks without contact. Police opened an investigation. Sixty days later it was closed — officials cited 'insufficient grounds to continue.' Former colleagues say Okafor had been asking pointed questions about what actually caused the twelve-hour platform outage. No further information has been made public.",
+      date:"Q4, Year 2"},
+    U3:{type:"neu",imgKey:"bravo_u3",
+      headline:"Bravo quietly replaces large parts of its engineering team with automated systems",
+      body:"Bravo has overhauled much of its backend operation using automated software, significantly reducing its reliance on in-house engineering staff. The platform now runs measurably faster than before. Users have noticed nothing different. But the move is drawing questions — particularly from those who remember that Bravo's largest-ever round of job cuts was announced just two months earlier.",
+      date:"Q1, Year 3"},
   },
-  alpha: {
-    arc: "rise",
-    arcText: "ALPM · Story arc: Scandal, chaos, a CEO on trial — and somehow, a comeback.",
-    sections: [
-      {
-        type: "positive",
-        articles: [
-          {
-            headline: "Bollywood star Ananya Kapoor spotted in Alpha Vertex EV — internet goes wild",
-            date: "Q1, Yr 1",
-            body: "Nobody paid for it. Ananya Kapoor — with 42 million Instagram followers — posts a spontaneous reel driving through Mumbai in an Alpha Vertex EV, windows down, song playing. The video hits 60 million views in two days. 'Is Alpha the new status symbol?' trends nationally. Test drive bookings spike overnight.",
-            impact: "↑ +16% — Organic viral moment worth more than any campaign"
-          },
-          {
-            headline: "Alpha announces full EV pivot by 2027 — 3% workforce restructured, not fired",
-            date: "Q2, Yr 1",
-            body: "CEO Dilan Marsh presents the most aggressive EV transition timeline in the industry at investor day. The 3% headcount reduction is framed as reorientation — combustion engineers out, battery and software engineers in. The boldness reads as leadership, not desperation.",
-            impact: "↑ +21% — Strategic conviction drives institutional buying"
-          },
-          {
-            headline: "Alpha opens ₹2,100 Cr automated factory in Pune — production capacity doubles",
-            date: "Q3, Yr 1",
-            body: "A 1.2 million sq ft automated facility in Pune, built in partnership with Maharashtra state government. Cost-per-unit drops 34%. Marsh calls it 'the spine of the new Alpha.' Local press dubs it 'the factory of the future.' Shareholders are thrilled.",
-            impact: "↑ +13% — Efficiency story validates the pivot narrative"
-          },
-          {
-            headline: "Alpha Vertex wins 'Car of the Year' at Global Auto Excellence Awards — waiting list hits 4 months",
-            date: "Q4, Yr 1",
-            body: "The same car Ananya made famous takes the top prize at the industry's most-watched ceremony. The timing is perfect — six weeks before earnings. Test drive bookings jump 140% overnight. The Vertex is no longer just a car. It is a cultural object.",
-            impact: "↑ +9% — Award legitimises product quality; bookings impress analysts"
-          },
-          {
-            headline: "Alpha posts first profitable quarter in company history — beats estimates by 23%",
-            date: "Q1, Yr 2",
-            body: "Pune efficiencies, the Vertex halo, EV demand — it all converges at once. Alpha Motors is profitable for the first time. 'The pivot was not a gamble,' Marsh says on the earnings call. 'It was a necessity.' For one quarter, Alpha looks like the future of automobiles.",
-            impact: "↑ +28% — Historic profit milestone triggers massive institutional buying"
-          }
-        ]
-      },
-      {
-        type: "negative",
-        articles: [
-          {
-            headline: "Alpha's second layoff round cuts 1,200 factory floor workers — unions demand answers",
-            date: "Q2, Yr 2",
-            body: "As Pune robotics come fully online, 1,200 blue-collar workers are cut. This time there is no strategic repositioning narrative. Former workers speak to local TV. Labour unions in three states call for boycotts. The human cost of automation arrives — and it is not abstract.",
-            impact: "↓ −12% — Consumer backlash and union pressure damage brand perception"
-          },
-          {
-            headline: "CEO Dilan Marsh named in Epstein files — photo shows him on the island",
-            date: "Q3, Yr 2",
-            body: "Nobody anticipated page 47. A photograph surfaces showing Marsh shaking Epstein's hand at a private gathering, circa 2014. The image spreads before the PR team has drafted a single sentence. Dealerships report immediate cancellations. The board convenes an emergency session. Twitter (now X) does not wait.",
-            impact: "↓ −34% — Worst single-day drop in company history"
-          },
-          {
-            headline: "Marsh claims photograph is AI-generated — experts disagree, internet makes memes",
-            date: "Q3, Yr 2",
-            body: "In a live TV interview Marsh looks into the camera and calls the photo 'an AI-fabricated hit job.' Image forensic analysts are split — some find generation artefacts, others don't. What is not split: public opinion. 'CEO claims AI photo' is a meme within 24 hours. Sales continue to slip.",
-            impact: "↓ −19% — Denial without proof accelerates reputational freefall"
-          },
-          {
-            headline: "Ananya Kapoor's latest video features a competitor's car — fans immediately notice",
-            date: "Q4, Yr 2",
-            body: "It is a 22-minute Goa road trip vlog. The car is a rival SUV — conspicuously beautiful, conspicuously not an Alpha. Ananya says nothing about the change. Comments erupt. Three journalists publish pieces titled some version of 'What does Ananya know that we don't?' Alpha issues no statement.",
-            impact: "↓ −11% — Brand association loss signals deeper consumer confidence problem"
-          },
-          {
-            headline: "Heavy international tariffs target Pune exports — Alpha's cost advantage under threat",
-            date: "Q1, Yr 3",
-            body: "New trade tariff regimes targeting Indian auto exports threaten to erode the 34% unit cost reduction that made Pune Alpha's crown jewel. Analysts model relocation scenarios. None are cheap. None are fast. The factory that saved Alpha may now be what sinks it.",
-            impact: "↓ −17% — Core competitive advantage placed in structural doubt"
-          }
-        ]
-      },
-      {
-        type: "neutral",
-        articles: [
-          {
-            headline: "Alpha's Pune automation draws split coverage — efficiency praised, workers condemned to silence",
-            date: "Q2, Yr 1",
-            body: "Business press applauds the margins. Labour press condemns the displacement. Tech commentators debate whether the robotics are truly proprietary or sourced from a Hyderabad firm. Alpha stays on-message: 'This is the future of manufacturing.' The future, it turns out, is contested.",
-            impact: "→ Flat — Competing narratives cancel each other out"
-          },
-          {
-            headline: "Former sustainability head publishes damning op-ed — retracts it 36 hours later",
-            date: "Q4, Yr 1",
-            body: "A former Alpha sustainability director publishes a piece alleging the EV transition is 'more marketing than engineering.' Battery sourcing from Jharkhand, she writes, contradicts every green claim. The piece gains enormous traction. Then it is retracted. 'Factual errors.' No errors are specified. The original is cached on fifty platforms.",
-            impact: "→ −3% then flat — Volatility spike absorbed within two sessions"
-          },
-          {
-            headline: "Board announces independent review of Marsh — he stays on, company continues operating",
-            date: "Q2, Yr 3",
-            body: "An external law firm is appointed to conduct a 'comprehensive independent review.' No timeline given. No interim leadership named. Marsh continues attending meetings, signing off on strategy and appearing in earnings calls. Everything is under review. Nothing has changed. The market is not sure what to do with that.",
-            impact: "→ Flat — Procedural action read as neither exoneration nor removal"
-          },
-          {
-            headline: "Marsh cleared by independent review — short-sellers caught badly off guard",
-            date: "Q3, Yr 3",
-            body: "The law firm concludes: no evidence linking Marsh to Epstein's criminal enterprise. The photograph was taken at a legitimate Mumbai industry conference Epstein had also attended — context that was never part of the original news cycle. The board issues a full statement of confidence. Short positions scramble to cover.",
-            impact: "→ +29% — Explosive short-squeeze; largest single-day gain in 18 months"
-          },
-          {
-            headline: "Alpha announces EU manufacturing tie-up in Portugal — Pune tariffs rendered moot",
-            date: "Q3, Yr 3",
-            body: "In a move that catches the industry flatfooted, Alpha signs a joint manufacturing agreement with a major European auto group, creating a parallel production line that sidesteps the Indian export tariffs entirely. The Pune facility remains for non-EU markets. The cost advantage is preserved. The threat that was meant to sink Alpha has been quietly outmanoeuvred.",
-            impact: "→ +17% — Structural overhang resolved; wave of analyst upgrades follows"
-          }
-        ]
-      }
-    ]
+  alpha:{
+    P1:{type:"pos",imgKey:"alpha_p1",
+      headline:"Ananya Kapoor's Mumbai drive reel hits 60 million views — Alpha didn't pay a rupee",
+      body:"Nobody at Alpha Motors arranged it. Bollywood star Ananya Kapoor simply posted a reel of herself driving an Alpha Vertex EV through Mumbai — windows down, music playing. It reached 60 million views in two days. 'Is Alpha the new status symbol?' began trending across social platforms. Test drive bookings spiked overnight. It was the most effective piece of marketing in the company's history, and it cost them nothing.",
+      date:"Q1, Year 1"},
+    P2:{type:"pos",imgKey:"alpha_p2",
+      headline:"Alpha Vertex wins Global Car of the Year — waiting list grows to four months",
+      body:"The Alpha Vertex EV — already made famous by Ananya Kapoor's viral reel — has won the most prestigious award in the global automotive industry. The trophy was announced at a ceremony in Geneva. Within hours, Alpha's website crashed from the volume of enquiries. The waiting list for the Vertex is now four months long. The car that launched a cultural moment has now won the industry's top prize.",
+      date:"Q4, Year 1"},
+    P3:{type:"pos",imgKey:"alpha_p3",
+      headline:"Alpha posts its first-ever profitable quarter — results exceed expectations",
+      body:"For the first time in the company's history, Alpha Motors has made a profit. Strong demand for the Vertex, cost savings from the Pune facility, and the early momentum of the electric vehicle transition all converged in a single quarter. CEO Dilan Marsh told reporters at the results announcement: 'We said this was the plan. Today is proof that the plan works.'",
+      date:"Q1, Year 2"},
+    P4:{type:"pos",imgKey:"alpha_p4",
+      headline:"Alpha signs European factory deal — tariff problem solved, Ananya Kapoor returns",
+      body:"Alpha Motors has agreed a joint manufacturing deal with a major European car company, establishing a new production facility in Portugal that is unaffected by the Indian export tariffs. The Pune plant will continue operating for domestic and Asian markets. CEO Dilan Marsh — cleared by an independent review last month — appeared at the announcement in Lisbon. On the same day, Ananya Kapoor posted a new reel from behind the wheel of the latest Vertex. No caption. No explanation needed.",
+      date:"Q4, Year 3"},
+    N1:{type:"neg",imgKey:"alpha_n1",
+      headline:"Alpha to cut 3% of workforce as part of shift to electric vehicles",
+      body:"Alpha has confirmed it will stop making petrol-powered vehicles entirely by 2027, making it one of the most ambitious timelines of any car company in the world. The transition comes with a restructure: around 3% of staff — mostly those working on older engine technology — will be let go over the coming months. The company says it will offer full severance and job-placement support. Some in the industry are impressed; others think the timeline is unrealistic.",
+      date:"Q2, Year 1"},
+    N2:{type:"neg",imgKey:"alpha_n2",
+      headline:"Alpha's Pune factory is efficient and growing — but 1,200 workers have just lost their jobs",
+      body:"Alpha's automated manufacturing facility in Pune has delivered on its promises: production costs are down significantly and output has doubled. It is a genuine industrial achievement. But this quarter, as the robotic assembly lines reached full capacity, 1,200 workers on the factory floor were informed their positions no longer exist. Labour unions across three states have called for a national boycott of Alpha vehicles.",
+      date:"Q3, Year 2"},
+    N3:{type:"neg",imgKey:"alpha_n3",
+      headline:"CEO Dilan Marsh named in Jeffrey Epstein documents — photograph released publicly",
+      body:"A newly published batch of documents connected to the late financier Jeffrey Epstein includes the name of Alpha Motors CEO Dilan Marsh. Within hours, a photograph appeared online showing Marsh shaking hands with Epstein at a private event. Alpha's communications team released a brief statement by evening. Dealerships across the country reported a significant number of order cancellations before the day was over.",
+      date:"Q3, Year 2"},
+    N4:{type:"neg",imgKey:"alpha_n4",
+      headline:"New international tariffs target Indian-made vehicles — Alpha's Pune advantage under pressure",
+      body:"A coalition of governments has announced new import tariffs specifically targeting vehicles manufactured in India. The cost advantage that Alpha built its recovery around — a result of the Pune facility — could be significantly reduced if the tariffs take full effect. Alpha has not yet said how it plans to respond. The company is running scenarios. So are analysts. None of the outcomes are simple.",
+      date:"Q1, Year 3"},
+    U1:{type:"neu",imgKey:"alpha_u1",
+      headline:"Alpha opens massive automated factory in Pune — built with state government support",
+      body:"Alpha's new manufacturing plant in Pune is now fully operational. The facility, developed in partnership with the Maharashtra state government, spans over a million square feet and is almost entirely automated. It has doubled the company's production capacity. The opening drew wide coverage and was attended by state officials. Whether the plant delivers on its long-term promise is something the coming quarters will reveal.",
+      date:"Q3, Year 1"},
+    U2:{type:"neu",imgKey:"alpha_u2",
+      headline:"Marsh says the Epstein photograph is AI-generated — experts reach no agreement",
+      body:"CEO Dilan Marsh has publicly rejected the photograph showing him with Jeffrey Epstein, telling a national news channel that the image is 'entirely fabricated using artificial intelligence tools.' A number of digital forensics analysts have since examined the photograph. Some report finding signs of manipulation. Others say the image appears authentic. No definitive conclusion has been reached — but public opinion has largely already settled.",
+      date:"Q4, Year 2"},
+    U3:{type:"neu",imgKey:"alpha_u3",
+      headline:"Ananya Kapoor's new travel video features a different car — no explanation given",
+      body:"Ananya Kapoor posted a new video this week — a road trip along the Goa coast — and the car she was driving was not an Alpha. It was a competitor's vehicle. She offered no explanation for the change and has not responded to questions. The comments section filled immediately with people asking what happened. Alpha has not issued any statement. The silence has drawn as much attention as the video itself.",
+      date:"Q4, Year 2"},
   }
 };
 
-let currentCompany = 'bravo';
-let openArticles = new Set();
+/* ROUND SEQUENCES
+   10-round: BRVT = 3P 4N 3U | ALPM = 3P 4N 3U
+   7-round:  BRVT = 2P 3N 2U | ALPM = 2P 3N 2U
+   No article gives away the stock direction.
+   Trajectories cross rather than mirror.
+   Final round is unmistakably conclusive for both.
+*/
+const SEQ10 = [
+  ["P1","P1"],  // R1  — Both positive: pandemic rise / Ananya reel
+  ["P2","N1"],  // R2  — Bravo raises big / Alpha announces layoffs with EV pivot
+  ["U1","U1"],  // R3  — Both neutral: podcast dies / Pune factory opens
+  ["P3","P2"],  // R4  — Bravo gets gov contracts / Alpha wins Car of Year
+  ["N1","P3"],  // R5  — Bravo CEO F1 photo / Alpha first profit
+  ["N2","N2"],  // R6  — Bravo outage / Alpha factory workers cut
+  ["U2","N3"],  // R7  — Bravo employee missing / Alpha Epstein photo
+  ["N3","U2"],  // R8  — Bravo SEC complaint / Marsh denies, experts split
+  ["U3","U3"],  // R9  — Bravo replaces engineers / Ananya switches cars
+  ["N4","P4"],  // R10 — FINAL: Bravo CEO resigns & buyout / Alpha comeback complete
+];
 
-function switchCompany(co) {
-  currentCompany = co;
-  openArticles.clear();
-  document.querySelectorAll('.company-tab').forEach((t, i) => {
-    t.className = 'company-tab';
-    if (i === 0 && co === 'bravo') t.classList.add('active-bravo');
-    if (i === 1 && co === 'alpha') t.classList.add('active-alpha');
+const SEQ7 = [
+  ["P1","P1"],  // R1 — Both positive: viral moments
+  ["P2","U1"],  // R2 — Bravo fundraises / Alpha Pune factory opens
+  ["N1","N1"],  // R3 — Bravo CEO at F1 / Alpha EV layoff announcement
+  ["N2","N3"],  // R4 — Bravo outage / Alpha Epstein photo drops
+  ["U2","U2"],  // R5 — Bravo employee missing / Marsh denies photograph
+  ["N3","U3"],  // R6 — Bravo SEC complaint / Ananya switches cars
+  ["N4","P4"],  // R7 — FINAL: Bravo CEO resigns / Alpha comeback complete
+];
+
+let role = null;
+let currentSeq = [];
+let currentRound = 0;
+let totalRounds = 0;
+
+function selectRole(r){
+  role = r;
+  document.getElementById('role-host').classList.remove('selected');
+  document.getElementById('role-viewer').classList.remove('selected');
+  document.getElementById('role-'+r).classList.add('selected');
+  document.getElementById('mode-10').classList.add('unlocked');
+  document.getElementById('mode-7').classList.add('unlocked');
+}
+
+function startGame(n){
+  if(!role) return;
+  currentSeq = n===10 ? SEQ10 : SEQ7;
+  totalRounds = n;
+  currentRound = 0;
+  document.getElementById('mode-pill').textContent = n+'-Round Game';
+  const rp = document.getElementById('role-pill');
+  rp.textContent = role==='host' ? 'HOSTING' : 'VIEWING';
+  rp.className = 'host-pill '+(role==='host'?'host':'viewer');
+  // show font toggle only for hosting mode
+  const ftw = document.getElementById('font-toggle-wrap');
+  ftw.className = role==='host' ? 'font-toggle-wrap visible' : 'font-toggle-wrap';
+  showScreen('game');
+  renderRound();
+}
+
+function setFont(size){
+  document.body.classList.remove('font-large','font-xl');
+  if(size==='large') document.body.classList.add('font-large');
+  if(size==='xl') document.body.classList.add('font-xl');
+  document.querySelectorAll('.font-toggle-btn').forEach((b,i)=>{
+    b.classList.toggle('active-size', ['normal','large','xl'][i]===size);
   });
-  render();
 }
 
-function toggleArticle(id) {
-  if (openArticles.has(id)) openArticles.delete(id);
-  else openArticles.add(id);
-  render();
+function changeRound(dir){
+  currentRound += dir;
+  if(currentRound >= totalRounds){ showScreen('endscreen'); return; }
+  renderRound();
 }
 
-function render() {
-  const co = data[currentCompany];
-  const strip = document.getElementById('arc-strip');
-  strip.className = 'arc-strip arc-' + co.arc;
-  strip.textContent = co.arcText;
+function renderRound(){
+  const [bKey, aKey] = currentSeq[currentRound];
+  const bArt = ART.bravo[bKey];
+  const aArt = ART.alpha[aKey];
+  const isFinal = currentRound === totalRounds - 1;
 
-  const sectionLabels = { positive: 'Positive', negative: 'Negative', neutral: 'Neutral' };
-  const impactClass = { positive: 'impact-pos', negative: 'impact-neg', neutral: 'impact-neu' };
-  const labelClass = { positive: 'label-pos', negative: 'label-neg', neutral: 'label-neu' };
+  document.getElementById('round-lbl').textContent = 'Round '+(currentRound+1);
+  document.getElementById('nav-ctr').textContent = (currentRound+1)+' / '+totalRounds;
+  document.getElementById('prog').style.width = (((currentRound+1)/totalRounds)*100)+'%';
+  document.getElementById('prev-btn').disabled = currentRound===0;
+  document.getElementById('next-btn').textContent = isFinal ? 'See Verdict ✓' : 'Next →';
 
-  let html = '';
-  co.sections.forEach(section => {
-    html += '<div class="section-head"><span class="section-label ' + labelClass[section.type] + '">' + sectionLabels[section.type] + '</span><div class="section-rule"></div></div><div class="articles">';
-
-    section.articles.forEach(function(art, i) {
-      const id = section.type + i;
-      const isOpen = openArticles.has(id);
-      html += '<div class="article ' + (isOpen ? 'open' : '') + '" onclick="toggleArticle(\'' + id + '\')">';
-      html += '<div class="article-top"><div>';
-      html += '<div class="article-headline">' + art.headline + '</div>';
-      html += '<div class="article-date">' + currentCompany.toUpperCase() + ' · ' + art.date + '</div>';
-      html += '</div><div class="chevron">▼</div></div>';
-      html += '<div class="article-body ' + (isOpen ? 'open' : '') + '">';
-      html += '<p>' + art.body + '</p>';
-      html += '<div class="impact-line ' + impactClass[section.type] + '">' + art.impact + '</div>';
-      html += '</div></div>';
-    });
-
-    html += '</div>';
-  });
-
-  document.getElementById('news-container').innerHTML = html;
+  document.getElementById('articles-area').innerHTML =
+    panel('bravo','BRVT · Bravo Technologies',bArt) +
+    panel('alpha','ALPM · Alpha Motors',aArt);
 }
 
-render();
+function panel(co, label, art){
+  const map={pos:['▲ Positive','badge-pos'],neg:['▼ Negative','badge-neg'],neu:['~ Neutral','badge-neu']};
+  const [txt,cls] = map[art.type];
+  const hide = role==='host' ? 'badge-hidden' : '';
+  return `<div class="art-panel">
+    <div class="panel-co ${co}">${label}</div>
+    <div class="art-img"><span>${art.imgKey}</span></div>
+    <span class="art-badge ${cls} ${hide}">${txt}</span>
+    <div class="art-headline">${art.headline}</div>
+    <div class="art-body">${art.body}</div>
+    <div class="art-date">${art.date}</div>
+  </div>`;
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome(){
+  role=null;
+  document.body.classList.remove('font-large','font-xl');
+  document.getElementById('role-host').classList.remove('selected');
+  document.getElementById('role-viewer').classList.remove('selected');
+  document.getElementById('mode-10').classList.remove('unlocked');
+  document.getElementById('mode-7').classList.remove('unlocked');
+  showScreen('home');
+}
 </script>
-
 </body>
 </html>
